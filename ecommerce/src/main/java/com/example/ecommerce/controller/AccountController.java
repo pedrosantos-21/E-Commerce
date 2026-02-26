@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("api/v1/accounts")
+@RequestMapping("api/accounts")
 
 public class AccountController {
 
@@ -14,4 +14,5 @@ public class AccountController {
     public String helloWorld() {
         return "Hello World";
     }
+
 }
