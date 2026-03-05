@@ -1,0 +1,111 @@
+Index: ecommerce/src/main/java/com/example/ecommerce/service/CustomerService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.ecommerce.service;\n\nimport com.example.ecommerce.dto.CustomerRequestDTO;\nimport com.example.ecommerce.dto.CustomerResponseDTO;\nimport com.example.ecommerce.model.Customer;\nimport com.example.ecommerce.repository.CustomerRepository;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.stereotype.Service;\nimport org.springframework.transaction.annotation.Transactional;\n\nimport java.util.List;\nimport java.util.Optional;\nimport java.util.UUID;\nimport java.util.stream.Collectors;\n\n/**\n * Serviço responsável pela lógica de negócio relacionada aos clientes.\n * Gerencia as operações de CRUD (Create, Read, Update, Delete) para a entidade {@link Customer},\n * utilizando o {@link CustomerRepository} para interagir com o banco de dados.\n */\n@Service\npublic class CustomerService {\n\n    @Autowired\n    private CustomerRepository customerRepository;\n\n    /**\n     * Cria um novo cliente a partir dos dados fornecidos no DTO de requisição.\n     * @param customerRequestDTO DTO contendo os dados para criação do cliente.\n     * @return Um {@link CustomerResponseDTO} com os dados do cliente recém-criado.\n     */\n    @Transactional\n    public CustomerResponseDTO createCustomer(CustomerRequestDTO customerRequestDTO) {\n        Customer customer = new Customer(\n                customerRequestDTO.email(),\n                customerRequestDTO.password(),\n                customerRequestDTO.name(),\n                customerRequestDTO.cep(),\n                customerRequestDTO.cpf(),\n                customerRequestDTO.birth(),\n                customerRequestDTO.contactNumber()\n        );\n        Customer savedCustomer = customerRepository.save(customer);\n        return new CustomerResponseDTO(savedCustomer);\n    }\n\n    /**\n     * Retorna uma lista de todos os clientes cadastrados.\n     * @return Uma {@link List} de {@link CustomerResponseDTO} contendo todos os clientes.\n     */\n    public List<CustomerResponseDTO> getAllCustomers() {\n        return customerRepository.findAll().stream()\n                .map(CustomerResponseDTO::new)\n                .collect(Collectors.toList());\n    }\n\n    /**\n     * Busca um cliente pelo seu ID único.\n     * @param id O ID (UUID) do cliente a ser buscado.\n     * @return Um {@link Optional} contendo o {@link CustomerResponseDTO} do cliente, se encontrado, ou vazio caso contrário.\n     */\n    public Optional<CustomerResponseDTO> getCustomerById(UUID id) {\n        return customerRepository.findById(id)\n                .map(CustomerResponseDTO::new);\n    }\n\n    /**\n     * Atualiza os dados de um cliente existente.\n     * @param id O ID (UUID) do cliente a ser atualizado.\n     * @param customerRequestDTO DTO contendo os novos dados do cliente.\n     * @return Um {@link Optional} contendo o {@link CustomerResponseDTO} do cliente atualizado, se encontrado, ou vazio caso contrário.\n     */\n    @Transactional\n    public Optional<CustomerResponseDTO> updateCustomer(UUID id, CustomerRequestDTO customerRequestDTO) {\n        return customerRepository.findById(id)\n                .map(existingCustomer -> {\n                    existingCustomer.setEmail(customerRequestDTO.email());\n                    existingCustomer.setPassword(customerRequestDTO.password());\n                    existingCustomer.setName(customerRequestDTO.name());\n                    existingCustomer.setCep(customerRequestDTO.cep());\n                    existingCustomer.setCpf(customerRequestDTO.cpf());\n                    existingCustomer.setBirth(customerRequestDTO.birth());\n                    existingCustomer.setContactNumber(customerRequestDTO.contactNumber());\n                    return new CustomerResponseDTO(customerRepository.save(existingCustomer));\n                });\n    }\n\n    /**\n     * Exclui um cliente pelo seu ID único.\n     * @param id O ID (UUID) do cliente a ser excluído.\n     * @return {@code true} se o cliente foi excluído com sucesso, {@code false} caso contrário.\n     */\n    @Transactional\n    public boolean deleteCustomer(UUID id) {\n        return customerRepository.findById(id)\n                .map(customer -> {\n                    customerRepository.delete(customer);\n                    return true;\n                })\n                .orElse(false);\n    }\n\n    /**\n     * Busca um cliente pelo seu endereço de email.\n     * @param email O endereço de email do cliente.\n     * @return Um {@link Optional} contendo o {@link CustomerResponseDTO} do cliente, se encontrado, ou vazio caso contrário.\n     */\n    public Optional<CustomerResponseDTO> getCustomerByEmail(String email) {\n        return customerRepository.findByEmail(email)\n                .map(CustomerResponseDTO::new);\n    }\n}\n
+===================================================================
+diff --git a/ecommerce/src/main/java/com/example/ecommerce/service/CustomerService.java b/ecommerce/src/main/java/com/example/ecommerce/service/CustomerService.java
+--- a/ecommerce/src/main/java/com/example/ecommerce/service/CustomerService.java	(revision 95436c5786ad0853bf811283d7ada18aaee8b343)
++++ b/ecommerce/src/main/java/com/example/ecommerce/service/CustomerService.java	(date 1772751634012)
+@@ -29,7 +29,7 @@
+      * @param customerRequestDTO DTO contendo os dados para criação do cliente.
+      * @return Um {@link CustomerResponseDTO} com os dados do cliente recém-criado.
+      */
+-    @Transactional
++    @Transactional /** Garante integridade do banco de dados (ACID) */
+     public CustomerResponseDTO createCustomer(CustomerRequestDTO customerRequestDTO) {
+         Customer customer = new Customer(
+                 customerRequestDTO.email(),
+Index: ecommerce/src/main/java/com/example/ecommerce/model/Customer.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.ecommerce.model;\n\nimport jakarta.persistence.*;\nimport java.util.UUID;\n\nimport java.math.BigInteger;\nimport java.text.Normalizer;\nimport java.util.Date;\n\n/*\nEntity -> Com essa Class nós conseguimos criar as Entidades(Tablas do banco)\n@Id -> Id da tabela\n@GeneratedValue -> Auto increment do banco\nUUID  -> Criptografia do dado.\n*/\n\n\n@Entity\npublic class Customer {\n    //Dados de login\n    @Id\n    @GeneratedValue(strategy = GenerationType.UUID)\n    @Column(unique = true, nullable = false)\n    private UUID id;\n\n    @Column (unique = true, nullable = false)\n    private String email;\n\n    @Column (nullable = false)\n    private String password;\n\n    // Dados pessoais\n    @Column (nullable = false)\n    private String name;\n\n    @Column (nullable = false, length = 8)\n    private String cep;\n\n    @Column (unique = true, nullable = false)\n    private BigInteger cpf;\n\n    @Column (nullable = false)\n    private Date birth;\n\n    @Column\n    private Normalizer.Form gender;\n    //Nesta sessão vamos criar o formulario.\n\n    @Column\n    private Normalizer.Form sex;\n    //Dados de Contato\n    @Column (unique = true, nullable = false)\n    private BigInteger contactNumber;\n\n\n    public Customer(){\n\n    }\n\n    public Customer(UUID id,\n                    String email,\n                    String password,\n                    String cep,\n                    BigInteger cpf,\n                    Date birth){\n\n                    this.id = id;\n                    this.email = email;\n                    this.password = password;\n                    this.cep = cep;\n                    this.cpf = cpf;\n                    this.birth = birth;\n\n    }\n    // Tambem utilizamos a sobrecarga de customer, como uma forma de tratamento, prevenção, das variações de objetos\n    // Serve para salvar os dados em uma tabela de diferentes formas, como por exemplo na etapa de desenvolvimento, passar apenas os campos de nome e email.\n    // 3\uFE0F⃣ Cadastro sem dados opcionais (sexo/gênero)\n    public Customer(String email,\n                    String password,\n                    String name,\n                    String cep,\n                    BigInteger cpf,\n                    Date birth,\n                    BigInteger contactNumber) {\n\n        this.email = email;\n        this.password = password;\n        this.name = name;\n        this.cep = cep;\n        this.cpf = cpf;\n        this.birth = birth;\n        this.contactNumber = contactNumber;\n    }\n\n    // 4\uFE0F⃣ Uso interno / testes (com ID)\n    public Customer(UUID id,\n                    String email,\n                    String password,\n                    String name,\n                    String cep,\n                    BigInteger cpf,\n                    Date birth,\n                    BigInteger contactNumber) {\n\n        this(email, password, name, cep, cpf, birth, contactNumber);\n        this.id = id;\n    }\n\n    public UUID getId(){\n        return id;\n    }\n\n    public BigInteger getContactNumber() {\n        return contactNumber;\n    }\n\n    public BigInteger getCpf() {\n        return cpf;\n    }\n\n    public Date getBirth() {\n        return birth;\n    }\n\n    public Normalizer.Form getGender() {\n        return gender;\n    }\n\n    public String getCep() {\n        return cep;\n    }\n\n    public Normalizer.Form getSex() {\n        return sex;\n    }\n\n    public String getEmail() {\n        return email;\n    }\n\n    public String getName() {\n        return name;\n    }\n\n    public String getPassword() {\n        return password;\n    }\n\n    public void setBirth(Date birth) {\n        this.birth = birth;\n    }\n\n    public void setId(UUID id) {\n        this.id = id;\n    }\n\n    public void setEmail(String email) {\n        this.email = email;\n    }\n\n    public void setPassword(String password) {\n        this.password = password;\n    }\n\n    public void setName(String name) {\n        this.name = name;\n    }\n\n    public void setCep(String cep) {\n        this.cep = cep;\n    }\n\n    public void setCpf(BigInteger cpf) {\n        this.cpf = cpf;\n    }\n\n    public void setGender(Normalizer.Form gender) {\n        this.gender = gender;\n    }\n\n    public void setSex(Normalizer.Form sex) {\n        this.sex = sex;\n    }\n\n    public void setContactNumber(BigInteger contactNumber) {\n        this.contactNumber = contactNumber;\n    }\n\n}\n\n\n
+===================================================================
+diff --git a/ecommerce/src/main/java/com/example/ecommerce/model/Customer.java b/ecommerce/src/main/java/com/example/ecommerce/model/Customer.java
+--- a/ecommerce/src/main/java/com/example/ecommerce/model/Customer.java	(revision 95436c5786ad0853bf811283d7ada18aaee8b343)
++++ b/ecommerce/src/main/java/com/example/ecommerce/model/Customer.java	(date 1772145033681)
+@@ -111,38 +111,47 @@
+     }
+ 
+     public BigInteger getContactNumber() {
++
+         return contactNumber;
+     }
+ 
+     public BigInteger getCpf() {
++
+         return cpf;
+     }
+ 
+     public Date getBirth() {
++
+         return birth;
+     }
+ 
+     public Normalizer.Form getGender() {
++
+         return gender;
+     }
+ 
+     public String getCep() {
++
+         return cep;
+     }
+ 
+     public Normalizer.Form getSex() {
++
+         return sex;
+     }
+ 
+     public String getEmail() {
++
+         return email;
+     }
+ 
+     public String getName() {
++
+         return name;
+     }
+ 
+     public String getPassword() {
++
+         return password;
+     }
+ 
+@@ -159,30 +168,37 @@
+     }
+ 
+     public void setPassword(String password) {
++
+         this.password = password;
+     }
+ 
+     public void setName(String name) {
++
+         this.name = name;
+     }
+ 
+     public void setCep(String cep) {
++
+         this.cep = cep;
+     }
+ 
+     public void setCpf(BigInteger cpf) {
++
+         this.cpf = cpf;
+     }
+ 
+     public void setGender(Normalizer.Form gender) {
++
+         this.gender = gender;
+     }
+ 
+     public void setSex(Normalizer.Form sex) {
++
+         this.sex = sex;
+     }
+ 
+     public void setContactNumber(BigInteger contactNumber) {
++
+         this.contactNumber = contactNumber;
+     }
+ 

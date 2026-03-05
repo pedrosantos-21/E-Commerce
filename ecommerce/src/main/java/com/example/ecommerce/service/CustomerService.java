@@ -2,6 +2,7 @@ package com.example.ecommerce.service;
 
 import com.example.ecommerce.dto.CustomerRequestDTO;
 import com.example.ecommerce.dto.CustomerResponseDTO;
+import com.example.ecommerce.mapper.CustomerMapper;
 import com.example.ecommerce.model.Customer;
 import com.example.ecommerce.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,17 +32,9 @@ public class CustomerService {
      */
     @Transactional
     public CustomerResponseDTO createCustomer(CustomerRequestDTO customerRequestDTO) {
-        Customer customer = new Customer(
-                customerRequestDTO.email(),
-                customerRequestDTO.password(),
-                customerRequestDTO.name(),
-                customerRequestDTO.cep(),
-                customerRequestDTO.cpf(),
-                customerRequestDTO.birth(),
-                customerRequestDTO.contactNumber()
-        );
+        Customer customer = customerMapper.toCustomer(customerRequestDTO);
         Customer savedCustomer = customerRepository.save(customer);
-        return new CustomerResponseDTO(savedCustomer);
+        return customerMapper.toCustomerResponseDTO(savedCustomer);
     }
 
     /**
@@ -74,16 +67,15 @@ public class CustomerService {
     public Optional<CustomerResponseDTO> updateCustomer(UUID id, CustomerRequestDTO customerRequestDTO) {
         return customerRepository.findById(id)
                 .map(existingCustomer -> {
-                    existingCustomer.setEmail(customerRequestDTO.email());
-                    existingCustomer.setPassword(customerRequestDTO.password());
-                    existingCustomer.setName(customerRequestDTO.name());
-                    existingCustomer.setCep(customerRequestDTO.cep());
-                    existingCustomer.setCpf(customerRequestDTO.cpf());
-                    existingCustomer.setBirth(customerRequestDTO.birth());
-                    existingCustomer.setContactNumber(customerRequestDTO.contactNumber());
-                    return new CustomerResponseDTO(customerRepository.save(existingCustomer));
+                    // O MapStruct atualiza os campos do existingCustomer com os dados do DTO
+                    customerMapper.updateCustomerFromDto(customerRequestDTO, existingCustomer);
+
+                    // Salva a entidade atualizada e converte para o DTO de resposta
+                    Customer savedCustomer = customerRepository.save(existingCustomer);
+                    return customerMapper.toCustomerResponseDTO(savedCustomer);
                 });
     }
+
 
     /**
      * Exclui um cliente pelo seu ID único.
@@ -109,4 +101,6 @@ public class CustomerService {
         return customerRepository.findByEmail(email)
                 .map(CustomerResponseDTO::new);
     }
+    @Autowired
+    private CustomerMapper customerMapper;
 }
