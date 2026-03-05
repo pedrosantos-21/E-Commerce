@@ -1,7 +1,7 @@
 package com.example.ecommerce.model;
 
 import jakarta.persistence.*;
-import org.hibernate.validator.constraints.UUID;
+import java.util.UUID;
 
 import java.math.BigInteger;
 import java.text.Normalizer;
