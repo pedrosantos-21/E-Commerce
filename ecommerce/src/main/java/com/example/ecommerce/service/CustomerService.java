@@ -5,6 +5,7 @@ import com.example.ecommerce.dto.CustomerResponseDTO;
 import com.example.ecommerce.mapper.CustomerMapper;
 import com.example.ecommerce.model.Customer;
 import com.example.ecommerce.repository.CustomerRepository;
+import com.example.ecommerce.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,9 @@ public class CustomerService {
 
     @Autowired
     private CustomerRepository customerRepository;
+    
+    @Autowired
+    private ProductRepository productRepository;
 
     /**
      * Cria um novo cliente a partir dos dados fornecidos no DTO de requisição.
@@ -100,6 +104,23 @@ public class CustomerService {
     public Optional<CustomerResponseDTO> getCustomerByEmail(String email) {
         return customerRepository.findByEmail(email)
                 .map(CustomerResponseDTO::new);
+    }
+
+    /**
+     * Associa um produto a um cliente.
+     * @param customerId O ID do cliente.
+     * @param productId O ID do produto.
+     * @return Um Optional com o CustomerResponseDTO atualizado.
+     */
+    @Transactional
+    public Optional<CustomerResponseDTO> addProductToCustomer(UUID customerId, UUID productId) {
+        return customerRepository.findById(customerId).flatMap(customer -> 
+            productRepository.findById(productId).map(product -> {
+                customer.getProducts().add(product);
+                Customer updatedCustomer = customerRepository.save(customer);
+                return new CustomerResponseDTO(updatedCustomer);
+            })
+        );
     }
     @Autowired
     private CustomerMapper customerMapper;

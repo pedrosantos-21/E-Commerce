@@ -5,7 +5,9 @@ import java.util.UUID;
 
 import java.math.BigInteger;
 import java.text.Normalizer;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Date;
+import java.util.List;
 
 /*
 Entity -> Com essa Class nós conseguimos criar as Entidades(Tablas do banco)
@@ -184,6 +186,23 @@ public class Customer {
 
     public void setContactNumber(BigInteger contactNumber) {
         this.contactNumber = contactNumber;
+    }
+
+    @ManyToMany
+    @JoinTable(
+        name = "customer_products",
+        joinColumns = @JoinColumn(name = "customer_id"),
+        inverseJoinColumns = @JoinColumn(name = "product_id")
+    )
+    @JsonIgnore
+    private List<Product> products;
+
+    public List<Product> getProducts() {
+        return products;
+    }
+
+    public void setProducts(List<Product> products) {
+        this.products = products;
     }
 
 }

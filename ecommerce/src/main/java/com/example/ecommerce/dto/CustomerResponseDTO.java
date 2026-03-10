@@ -47,7 +47,8 @@ public record CustomerResponseDTO(
     /**
      * O número de contato do cliente.
      */
-    BigInteger contactNumber
+    BigInteger contactNumber,
+    java.util.List<ProductResponseDTO> products
 ) {
     /**
      * Construtor que mapeia um objeto Customer para um CustomerResponseDTO.
@@ -62,6 +63,9 @@ public record CustomerResponseDTO(
              customer.getBirth(),
              customer.getGender(),
              customer.getSex(),
-             customer.getContactNumber());
+             customer.getContactNumber(),
+             customer.getProducts() != null ? 
+                customer.getProducts().stream().map(ProductResponseDTO::new).toList() : 
+                java.util.Collections.emptyList());
     }
 }

@@ -20,7 +20,7 @@ public interface CustomerMapper {
 
     CustomerResponseDTO toCustomerResponseDTO(Customer customer);
 
-    // Método para atualizar uma entidade Customer existente a partir de um DTO
+// Método para atualizar uma entidade Customer existente a partir de um DTO
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "gender", ignore = true)
     @Mapping(target = "sex", ignore = true)

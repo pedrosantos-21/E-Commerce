@@ -84,4 +84,19 @@ public class CustomerController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    /**
+     * Adiciona um produto à lista de desejos/compras do cliente.
+     * @param customerId O ID do cliente.
+     * @param productId O ID do produto.
+     * @return ResponseEntity com o CustomerResponseDTO atualizado.
+     */
+    @PostMapping("/{customerId}/products/{productId}")
+    public ResponseEntity<CustomerResponseDTO> addProductToCustomer(
+            @PathVariable UUID customerId, 
+            @PathVariable UUID productId) {
+        return customerService.addProductToCustomer(customerId, productId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 }

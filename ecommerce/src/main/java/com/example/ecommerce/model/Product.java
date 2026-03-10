@@ -2,7 +2,9 @@ package com.example.ecommerce.model;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.UUID;
+import java.util.List;
 
 @Entity
 @Table(name = "products")
@@ -84,5 +86,17 @@ public class Product {
 
     public void setStock(Integer stock) {
         this.stock = stock;
+    }
+
+    @ManyToMany(mappedBy = "products")
+    @JsonIgnore
+    private List<Customer> customers;
+
+    public List<Customer> getCustomers() {
+        return customers;
+    }
+
+    public void setCustomers(List<Customer> customers) {
+        this.customers = customers;
     }
 }
