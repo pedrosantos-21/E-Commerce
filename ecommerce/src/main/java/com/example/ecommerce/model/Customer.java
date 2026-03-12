@@ -1,210 +1,91 @@
 package com.example.ecommerce.model;
 
-import jakarta.persistence.*;
-import java.util.UUID;
-
-import java.math.BigInteger;
-import java.text.Normalizer;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import java.math.BigInteger;
 import java.util.Date;
 import java.util.List;
-
-/*
-Entity -> Com essa Class nós conseguimos criar as Entidades(Tablas do banco)
-@Id -> Id da tabela
-@GeneratedValue -> Auto increment do banco
-UUID  -> Criptografia do dado.
-*/
-
+import java.util.UUID;
 
 @Entity
 public class Customer {
-    //Dados de login
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(unique = true, nullable = false)
     private UUID id;
 
-    @Column (unique = true, nullable = false)
+    @Column(unique = true, nullable = false)
     private String email;
 
-    @Column (nullable = false)
+    @Column(nullable = false)
     private String password;
 
-    // Dados pessoais
-    @Column (nullable = false)
+    @Column(nullable = false)
     private String name;
 
-    @Column (nullable = false, length = 8)
+    @Column(nullable = false, length = 8)
     private String cep;
 
-    @Column (unique = true, nullable = false)
+    @Column(unique = true, nullable = false)
     private BigInteger cpf;
 
-    @Column (nullable = false)
+    @Column(nullable = false)
     private Date birth;
 
+    @Enumerated(EnumType.STRING)
     @Column
-    private Normalizer.Form gender;
-    //Nesta sessão vamos criar o formulario.
+    private Gender gender;
 
+    @Enumerated(EnumType.STRING)
     @Column
-    private Normalizer.Form sex;
-    //Dados de Contato
-    @Column (unique = true, nullable = false)
+    private Sex sex;
+
+    @Column(unique = true, nullable = false)
     private BigInteger contactNumber;
-
-
-    public Customer(){
-
-    }
-
-    public Customer(UUID id,
-                    String email,
-                    String password,
-                    String cep,
-                    BigInteger cpf,
-                    Date birth){
-
-                    this.id = id;
-                    this.email = email;
-                    this.password = password;
-                    this.cep = cep;
-                    this.cpf = cpf;
-                    this.birth = birth;
-
-    }
-    // Tambem utilizamos a sobrecarga de customer, como uma forma de tratamento, prevenção, das variações de objetos
-    // Serve para salvar os dados em uma tabela de diferentes formas, como por exemplo na etapa de desenvolvimento, passar apenas os campos de nome e email.
-    // 3️⃣ Cadastro sem dados opcionais (sexo/gênero)
-    public Customer(String email,
-                    String password,
-                    String name,
-                    String cep,
-                    BigInteger cpf,
-                    Date birth,
-                    BigInteger contactNumber) {
-
-        this.email = email;
-        this.password = password;
-        this.name = name;
-        this.cep = cep;
-        this.cpf = cpf;
-        this.birth = birth;
-        this.contactNumber = contactNumber;
-    }
-
-    // 4️⃣ Uso interno / testes (com ID)
-    public Customer(UUID id,
-                    String email,
-                    String password,
-                    String name,
-                    String cep,
-                    BigInteger cpf,
-                    Date birth,
-                    BigInteger contactNumber) {
-
-        this(email, password, name, cep, cpf, birth, contactNumber);
-        this.id = id;
-    }
-
-    public UUID getId(){
-        return id;
-    }
-
-    public BigInteger getContactNumber() {
-        return contactNumber;
-    }
-
-    public BigInteger getCpf() {
-        return cpf;
-    }
-
-    public Date getBirth() {
-        return birth;
-    }
-
-    public Normalizer.Form getGender() {
-        return gender;
-    }
-
-    public String getCep() {
-        return cep;
-    }
-
-    public Normalizer.Form getSex() {
-        return sex;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setBirth(Date birth) {
-        this.birth = birth;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setCep(String cep) {
-        this.cep = cep;
-    }
-
-    public void setCpf(BigInteger cpf) {
-        this.cpf = cpf;
-    }
-
-    public void setGender(Normalizer.Form gender) {
-        this.gender = gender;
-    }
-
-    public void setSex(Normalizer.Form sex) {
-        this.sex = sex;
-    }
-
-    public void setContactNumber(BigInteger contactNumber) {
-        this.contactNumber = contactNumber;
-    }
 
     @ManyToMany
     @JoinTable(
-        name = "customer_products",
-        joinColumns = @JoinColumn(name = "customer_id"),
-        inverseJoinColumns = @JoinColumn(name = "product_id")
+            name = "customer_products",
+            joinColumns = @JoinColumn(name = "customer_id"),
+            inverseJoinColumns = @JoinColumn(name = "product_id")
     )
     @JsonIgnore
     private List<Product> products;
 
-    public List<Product> getProducts() {
-        return products;
+    public Customer() {}
+
+    public Customer(UUID id, String email, String password, String name, String cep, BigInteger cpf, Date birth, BigInteger contactNumber) {
+        this.id = id;
+        this.email = email;
+        this.password = password;
+        this.name = name;
+        this.cep = cep;
+        this.cpf = cpf;
+        this.birth = birth;
+        this.contactNumber = contactNumber;
     }
 
-    public void setProducts(List<Product> products) {
-        this.products = products;
-    }
-
+    // Getters and Setters
+    public UUID getId() { return id; }
+    public void setId(UUID id) { this.id = id; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public String getCep() { return cep; }
+    public void setCep(String cep) { this.cep = cep; }
+    public BigInteger getCpf() { return cpf; }
+    public void setCpf(BigInteger cpf) { this.cpf = cpf; }
+    public Date getBirth() { return birth; }
+    public void setBirth(Date birth) { this.birth = birth; }
+    public Gender getGender() { return gender; }
+    public void setGender(Gender gender) { this.gender = gender; }
+    public Sex getSex() { return sex; }
+    public void setSex(Sex sex) { this.sex = sex; }
+    public BigInteger getContactNumber() { return contactNumber; }
+    public void setContactNumber(BigInteger contactNumber) { this.contactNumber = contactNumber; }
+    public List<Product> getProducts() { return products; }
+    public void setProducts(List<Product> products) { this.products = products; }
 }
-
-
