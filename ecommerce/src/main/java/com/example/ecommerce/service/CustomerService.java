@@ -74,6 +74,11 @@ public class CustomerService {
                     // O MapStruct atualiza os campos do existingCustomer com os dados do DTO
                     customerMapper.updateCustomerFromDto(customerRequestDTO, existingCustomer);
 
+                    // Criptografa a nova senha antes de salvar
+                    if (customerRequestDTO.password() != null && !customerRequestDTO.password().isEmpty()) {
+                        existingCustomer.setPassword(passwordEncoder.encode(customerRequestDTO.password()));
+                    }
+
                     // Salva a entidade atualizada e converte para o DTO de resposta
                     Customer savedCustomer = customerRepository.save(existingCustomer);
                     return customerMapper.toCustomerResponseDTO(savedCustomer);

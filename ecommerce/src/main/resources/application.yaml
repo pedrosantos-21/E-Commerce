@@ -1,4 +1,4 @@
-server:
+4server:
   port: 8080
 spring:
   datasource:
@@ -15,4 +15,10 @@ spring:
           lob:
             non_contextual_creation: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
+
+api:
+  security:
+    token:
+      secret: ${JWT_SECRET:my-secret-key-1234567890-must-be-long-enough}
+      expiration: 7200 # 2 horas em segundos
 
