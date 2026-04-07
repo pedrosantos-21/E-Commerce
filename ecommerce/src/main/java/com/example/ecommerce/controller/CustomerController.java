@@ -3,6 +3,10 @@ package com.example.ecommerce.controller;
 import com.example.ecommerce.dto.CustomerRequestDTO;
 import com.example.ecommerce.dto.CustomerResponseDTO;
 import com.example.ecommerce.service.CustomerService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,39 +22,35 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping("/customers")
+@Tag(name = "Clientes", description = "Endpoints para gerenciamento de clientes no e-commerce")
 public class CustomerController {
 
     @Autowired
     private CustomerService customerService;
 
-    /**
-     * Cria um novo cliente no sistema.
-     *
-     * @param customerRequestDTO DTO contendo os dados do cliente a ser criado.
-     * @return ResponseEntity com o {@link CustomerResponseDTO} do cliente criado e status HTTP 201 (Created).
-     */
+    @Operation(summary = "Criar um novo cliente", description = "Cadastra um cliente com os dados fornecidos no corpo da requisição")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Cliente criado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados de entrada inválidos (ex: CPF ou Email inválido)")
+    })
     @PostMapping
     public ResponseEntity<CustomerResponseDTO> createCustomer(@RequestBody @Valid CustomerRequestDTO customerRequestDTO) {
         CustomerResponseDTO newCustomer = customerService.createCustomer(customerRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(newCustomer);
     }
 
-    /**
-     * Retorna uma lista de todos os clientes cadastrados.
-     *
-     * @return ResponseEntity com uma {@link List} de {@link CustomerResponseDTO} e status HTTP 200 (OK).
-     */
+    @Operation(summary = "Listar todos os clientes", description = "Retorna uma lista de todos os clientes cadastrados no sistema")
     @GetMapping
     public ResponseEntity<List<CustomerResponseDTO>> getAllCustomers() {
         List<CustomerResponseDTO> customers = customerService.getAllCustomers();
         return ResponseEntity.ok(customers);
     }
 
-    /**
-     * Busca um cliente pelo seu ID único.
-     * @param id O ID (UUID) do cliente a ser buscado.
-     * @return ResponseEntity com o {@link CustomerResponseDTO} do cliente e status HTTP 200 (OK), ou 404 (Not Found) se não encontrado.
-     */
+    @Operation(summary = "Buscar cliente por ID", description = "Retorna os detalhes de um cliente específico baseado no seu UUID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Cliente encontrado"),
+            @ApiResponse(responseCode = "404", description = "Cliente não encontrado")
+    })
     @GetMapping("/{id}")
     public ResponseEntity<CustomerResponseDTO> getCustomerById(@PathVariable UUID id) {
         return customerService.getCustomerById(id)
@@ -58,12 +58,11 @@ public class CustomerController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /**
-     * Atualiza os dados de um cliente existente.
-     * @param id O ID (UUID) do cliente a ser atualizado.
-     * @param customerRequestDTO DTO contendo os novos dados do cliente.
-     * @return ResponseEntity com o {@link CustomerResponseDTO} do cliente atualizado e status HTTP 200 (OK), ou 404 (Not Found) se não encontrado.
-     */
+    @Operation(summary = "Atualizar um cliente", description = "Atualiza os dados de um cliente existente baseado no ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Cliente atualizado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Cliente não encontrado para atualização")
+    })
     @PutMapping("/{id}")
     public ResponseEntity<CustomerResponseDTO> updateCustomer(@PathVariable UUID id, @RequestBody @Valid CustomerRequestDTO customerRequestDTO) {
         return customerService.updateCustomer(id, customerRequestDTO)
@@ -71,11 +70,11 @@ public class CustomerController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /**
-     * Exclui um cliente pelo seu ID único.
-     * @param id O ID (UUID) do cliente a ser excluído.
-     * @return ResponseEntity com status HTTP 204 (No Content) se excluído com sucesso, ou 404 (Not Found) se não encontrado.
-     */
+    @Operation(summary = "Deletar um cliente", description = "Remove permanentemente um cliente do sistema")
+    @ApiResponses(value = {
+            @ApiResponse(code = 204, description = "Cliente removido com sucesso"),
+            @ApiResponse(code = 404, description = "Cliente não encontrado para exclusão")
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCustomer(@PathVariable UUID id) {
         if (customerService.deleteCustomer(id)) {
@@ -85,15 +84,14 @@ public class CustomerController {
         }
     }
 
-    /**
-     * Adiciona um produto à lista de desejos/compras do cliente.
-     * @param customerId O ID do cliente.
-     * @param productId O ID do produto.
-     * @return ResponseEntity com o CustomerResponseDTO atualizado.
-     */
+    @Operation(summary = "Adicionar produto ao cliente", description = "Vincula um produto específico a um cliente (ex: carrinho de compras ou lista de desejos)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Produto adicionado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Cliente ou Produto não encontrado")
+    })
     @PostMapping("/{customerId}/products/{productId}")
     public ResponseEntity<CustomerResponseDTO> addProductToCustomer(
-            @PathVariable UUID customerId, 
+            @PathVariable UUID customerId,
             @PathVariable UUID productId) {
         return customerService.addProductToCustomer(customerId, productId)
                 .map(ResponseEntity::ok)

@@ -3,6 +3,10 @@ package com.example.ecommerce.controller;
 import com.example.ecommerce.dto.ProductRequestDTO;
 import com.example.ecommerce.dto.ProductResponseDTO;
 import com.example.ecommerce.service.ProductService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,37 +22,35 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping("/products")
+@Tag(name = "Produtos", description = "Endpoints para gerenciamento de produtos no e-commerce")
 public class ProductController {
 
     @Autowired
     private ProductService productService;
 
-    /**
-     * Cria um novo produto no sistema.
-     * @param productRequestDTO DTO contendo os dados do produto a ser criado.
-     * @return ResponseEntity com o {@link ProductResponseDTO} do produto criado e status HTTP 201 (Created).
-     */
+    @Operation(summary = "Criar um novo produto", description = "Cria um produto com as informações fornecidas no corpo da requisição")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Produto criado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados de entrada inválidos")
+    })
     @PostMapping
     public ResponseEntity<ProductResponseDTO> createProduct(@RequestBody @Valid ProductRequestDTO productRequestDTO) {
         ProductResponseDTO newProduct = productService.createProduct(productRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(newProduct);
     }
 
-    /**
-     * Retorna uma lista de todos os produtos cadastrados.
-     * @return ResponseEntity com uma {@link List} de {@link ProductResponseDTO} e status HTTP 200 (OK).
-     */
+    @Operation(summary = "Listar todos os produtos", description = "Retorna uma lista de todos os produtos cadastrados no sistema")
     @GetMapping
     public ResponseEntity<List<ProductResponseDTO>> getAllProducts() {
         List<ProductResponseDTO> products = productService.getAllProducts();
         return ResponseEntity.ok(products);
     }
 
-    /**
-     * Busca um produto pelo seu ID único.
-     * @param id O ID (UUID) do produto a ser buscado.
-     * @return ResponseEntity com o {@link ProductResponseDTO} do produto e status HTTP 200 (OK), ou 404 (Not Found) se não encontrado.
-     */
+    @Operation(summary = "Buscar produto por ID", description = "Retorna os detalhes de um produto específico baseado no seu UUID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Produto encontrado"),
+            @ApiResponse(responseCode = "404", description = "Produto não encontrado")
+    })
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponseDTO> getProductById(@PathVariable UUID id) {
         return productService.getProductById(id)
@@ -56,12 +58,11 @@ public class ProductController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /**
-     * Atualiza os dados de um produto existente.
-     * @param id O ID (UUID) do produto a ser atualizado.
-     * @param productRequestDTO DTO contendo os novos dados do produto.
-     * @return ResponseEntity com o {@link ProductResponseDTO} do produto atualizado e status HTTP 200 (OK), ou 404 (Not Found) se não encontrado.
-     */
+    @Operation(summary = "Atualizar um produto", description = "Atualiza os dados de um produto existente baseado no ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Produto atualizado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Produto não encontrado para atualização")
+    })
     @PutMapping("/{id}")
     public ResponseEntity<ProductResponseDTO> updateProduct(@PathVariable UUID id, @RequestBody @Valid ProductRequestDTO productRequestDTO) {
         return productService.updateProduct(id, productRequestDTO)
@@ -69,11 +70,11 @@ public class ProductController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /**
-     * Exclui um produto pelo seu ID único.
-     * @param id O ID (UUID) do produto a ser excluído.
-     * @return ResponseEntity com status HTTP 204 (No Content) se excluído com sucesso, ou 404 (Not Found) se não encontrado.
-     */
+    @Operation(summary = "Deletar um produto", description = "Remove permanentemente um produto do sistema")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Produto removido com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Produto não encontrado para exclusão")
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable UUID id) {
         if (productService.deleteProduct(id)) {
