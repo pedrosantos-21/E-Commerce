@@ -2,6 +2,7 @@ package com.example.ecommerce.service;
 
 import com.example.ecommerce.dto.ProductRequestDTO;
 import com.example.ecommerce.dto.ProductResponseDTO;
+import com.example.ecommerce.mapper.ProductMapper;
 import com.example.ecommerce.model.Product;
 import com.example.ecommerce.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,9 @@ public class ProductService {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private ProductMapper productMapper;
+
     /**
      * Cria um novo produto a partir dos dados fornecidos no DTO de requisição.
      * @param productRequestDTO DTO contendo os dados para criação do produto.
@@ -31,15 +35,9 @@ public class ProductService {
      */
     @Transactional
     public ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO) {
-        Product product = new Product(
-                productRequestDTO.name(),
-                productRequestDTO.description(),
-                productRequestDTO.price(),
-                productRequestDTO.brand(),
-                productRequestDTO.stock()
-        );
+        Product product = productMapper.toProduct(productRequestDTO);
         Product savedProduct = productRepository.save(product);
-        return new ProductResponseDTO(savedProduct);
+        return productMapper.toProductResponseDTO(savedProduct);
     }
 
     /**
@@ -48,7 +46,7 @@ public class ProductService {
      */
     public List<ProductResponseDTO> getAllProducts() {
         return productRepository.findAll().stream()
-                .map(ProductResponseDTO::new)
+                .map(productMapper::toProductResponseDTO)
                 .collect(Collectors.toList());
     }
 
@@ -59,7 +57,7 @@ public class ProductService {
      */
     public Optional<ProductResponseDTO> getProductById(UUID id) {
         return productRepository.findById(id)
-                .map(ProductResponseDTO::new);
+                .map(productMapper::toProductResponseDTO);
     }
 
     /**
@@ -72,12 +70,8 @@ public class ProductService {
     public Optional<ProductResponseDTO> updateProduct(UUID id, ProductRequestDTO productRequestDTO) {
         return productRepository.findById(id)
                 .map(existingProduct -> {
-                    existingProduct.setName(productRequestDTO.name());
-                    existingProduct.setDescription(productRequestDTO.description());
-                    existingProduct.setPrice(productRequestDTO.price());
-                    existingProduct.setBrand(productRequestDTO.brand());
-                    existingProduct.setStock(productRequestDTO.stock());
-                    return new ProductResponseDTO(productRepository.save(existingProduct));
+                    productMapper.updateProductFromDto(productRequestDTO, existingProduct);
+                    return productMapper.toProductResponseDTO(productRepository.save(existingProduct));
                 });
     }
 

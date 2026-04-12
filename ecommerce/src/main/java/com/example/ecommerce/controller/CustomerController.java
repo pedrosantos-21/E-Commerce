@@ -72,8 +72,8 @@ public class CustomerController {
 
     @Operation(summary = "Deletar um cliente", description = "Remove permanentemente um cliente do sistema")
     @ApiResponses(value = {
-            @ApiResponse(code = 204, description = "Cliente removido com sucesso"),
-            @ApiResponse(code = 404, description = "Cliente não encontrado para exclusão")
+            @ApiResponse(responseCode = "204", description = "Cliente removido com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Cliente não encontrado para exclusão")
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCustomer(@PathVariable UUID id) {

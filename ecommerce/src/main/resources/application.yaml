@@ -2,9 +2,9 @@
   port: 8080
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/ecommerce
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5433}/ecommerce
+    username: ${DB_USER:postgres}
+    password: ${DB_PASS:postgres}
 
   jpa:
     hibernate:
@@ -15,10 +15,16 @@ spring:
           lob:
             non_contextual_creation: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
+  rabbitmq:
+        host: ${RABBITMQ_HOST:localhost}
+        port: ${RABBITMQ_PORT:5672}
+        username: ${RABBITMQ_USER:guest}
+        password: ${RABBITMQ_PASS:guest}
 
 api:
   security:
     token:
       secret: ${JWT_SECRET:my-secret-key-1234567890-must-be-long-enough}
       expiration: 7200 # 2 horas em segundos
+
 

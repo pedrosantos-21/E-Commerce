@@ -6,7 +6,7 @@ import com.example.ecommerce.dto.LoginResponseDTO;
 import com.example.ecommerce.model.Customer;
 import com.example.ecommerce.repository.CustomerRepository;
 import com.example.ecommerce.security.TokenService;
-import com.example.ecommerce.mapper.CustomerMapper;
+import com.example.ecommerce.service.CustomerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,10 +34,7 @@ public class AuthController {
     private TokenService tokenService;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private CustomerMapper mapper;
+    private CustomerService customerService;
 
     @PostMapping("/login")
     @Operation(summary = "Realiza o login e retorna um token JWT")
@@ -58,11 +54,7 @@ public class AuthController {
             return ResponseEntity.badRequest().build();
         }
 
-        String encryptedPassword = passwordEncoder.encode(data.password());
-        Customer newCustomer = mapper.toEntity(data);
-        newCustomer.setPassword(encryptedPassword);
-
-        this.repository.save(newCustomer);
+        customerService.createCustomer(data);
 
         return ResponseEntity.ok().build();
     }

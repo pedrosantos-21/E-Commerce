@@ -7,6 +7,7 @@ import com.example.ecommerce.model.Customer;
 import com.example.ecommerce.repository.CustomerRepository;
 import com.example.ecommerce.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +30,15 @@ public class CustomerService {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private CustomerMapper customerMapper;
+
+    @Autowired
+    private CustomerProducer customerProducer;
+
     /**
      * Cria um novo cliente a partir dos dados fornecidos no DTO de requisição.
      * @param customerRequestDTO DTO contendo os dados para criação do cliente.
@@ -37,7 +47,12 @@ public class CustomerService {
     @Transactional
     public CustomerResponseDTO createCustomer(CustomerRequestDTO customerRequestDTO) {
         Customer customer = customerMapper.toCustomer(customerRequestDTO);
+        customer.setPassword(passwordEncoder.encode(customer.getPassword()));
         Customer savedCustomer = customerRepository.save(customer);
+        
+        // Envia mensagem assíncrona para o RabbitMQ (Centralizado aqui)
+        customerProducer.sendWelcomeMessage(savedCustomer);
+        
         return customerMapper.toCustomerResponseDTO(savedCustomer);
     }
 
@@ -47,7 +62,7 @@ public class CustomerService {
      */
     public List<CustomerResponseDTO> getAllCustomers() {
         return customerRepository.findAll().stream()
-                .map(CustomerResponseDTO::new)
+                .map(customerMapper::toCustomerResponseDTO)
                 .collect(Collectors.toList());
     }
 
@@ -58,7 +73,7 @@ public class CustomerService {
      */
     public Optional<CustomerResponseDTO> getCustomerById(UUID id) {
         return customerRepository.findById(id)
-                .map(CustomerResponseDTO::new);
+                .map(customerMapper::toCustomerResponseDTO);
     }
 
     /**
@@ -108,7 +123,7 @@ public class CustomerService {
      */
     public Optional<CustomerResponseDTO> getCustomerByEmail(String email) {
         return customerRepository.findByEmail(email)
-                .map(CustomerResponseDTO::new);
+                .map(customerMapper::toCustomerResponseDTO);
     }
 
     /**
@@ -123,10 +138,8 @@ public class CustomerService {
             productRepository.findById(productId).map(product -> {
                 customer.getProducts().add(product);
                 Customer updatedCustomer = customerRepository.save(customer);
-                return new CustomerResponseDTO(updatedCustomer);
+                return customerMapper.toCustomerResponseDTO(updatedCustomer);
             })
         );
     }
-    @Autowired
-    private CustomerMapper customerMapper;
 }
