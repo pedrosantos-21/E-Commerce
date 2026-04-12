@@ -7,6 +7,19 @@ import jakarta.validation.constraints.*;
 import java.math.BigInteger;
 import java.util.Date;
 
+/**
+ * Dados para criação ou atualização de um cliente.
+ * 
+ * @param email E-mail do cliente (deve ser único).
+ * @param password Senha para acesso.
+ * @param name Nome completo.
+ * @param cep CEP com 8 dígitos.
+ * @param cpf CPF numérico.
+ * @param birth Data de nascimento (deve ser no passado).
+ * @param gender Identidade de gênero.
+ * @param sex Sexo biológico.
+ * @param contactNumber Número de telefone/celular.
+ */
 @Schema(description = "Dados para criação ou atualização de um cliente")
 public record CustomerRequestDTO(
         @NotBlank(message = "O email é obrigatório")

@@ -28,6 +28,12 @@ public class CustomerController {
     @Autowired
     private CustomerService customerService;
 
+    /**
+     * Cria um novo cliente no sistema.
+     * 
+     * @param customerRequestDTO Dados do cliente para cadastro.
+     * @return ResponseEntity com o cliente criado e status 201 (Created).
+     */
     @Operation(summary = "Criar um novo cliente", description = "Cadastra um cliente com os dados fornecidos no corpo da requisição")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Cliente criado com sucesso"),
@@ -39,6 +45,11 @@ public class CustomerController {
         return ResponseEntity.status(HttpStatus.CREATED).body(newCustomer);
     }
 
+    /**
+     * Lista todos os clientes cadastrados.
+     * 
+     * @return Lista de clientes.
+     */
     @Operation(summary = "Listar todos os clientes", description = "Retorna uma lista de todos os clientes cadastrados no sistema")
     @GetMapping
     public ResponseEntity<List<CustomerResponseDTO>> getAllCustomers() {
@@ -46,6 +57,12 @@ public class CustomerController {
         return ResponseEntity.ok(customers);
     }
 
+    /**
+     * Busca um cliente pelo seu identificador único.
+     * 
+     * @param id UUID do cliente.
+     * @return O cliente encontrado ou 404 (Not Found).
+     */
     @Operation(summary = "Buscar cliente por ID", description = "Retorna os detalhes de um cliente específico baseado no seu UUID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Cliente encontrado"),
@@ -58,6 +75,13 @@ public class CustomerController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    /**
+     * Atualiza os dados de um cliente existente.
+     * 
+     * @param id UUID do cliente.
+     * @param customerRequestDTO Novos dados para atualização.
+     * @return O cliente atualizado ou 404.
+     */
     @Operation(summary = "Atualizar um cliente", description = "Atualiza os dados de um cliente existente baseado no ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Cliente atualizado com sucesso"),
@@ -70,10 +94,16 @@ public class CustomerController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    /**
+     * Remove um cliente do sistema.
+     * 
+     * @param id UUID do cliente.
+     * @return Status 204 (No Content) em caso de sucesso.
+     */
     @Operation(summary = "Deletar um cliente", description = "Remove permanentemente um cliente do sistema")
     @ApiResponses(value = {
-            @ApiResponse(code = 204, description = "Cliente removido com sucesso"),
-            @ApiResponse(code = 404, description = "Cliente não encontrado para exclusão")
+            @ApiResponse(responseCode = "204", description = "Cliente removido com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Cliente não encontrado para exclusão")
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCustomer(@PathVariable UUID id) {
@@ -84,6 +114,13 @@ public class CustomerController {
         }
     }
 
+    /**
+     * Associa um produto a um cliente.
+     * 
+     * @param customerId ID do cliente.
+     * @param productId ID do produto.
+     * @return O cliente com a lista de produtos atualizada.
+     */
     @Operation(summary = "Adicionar produto ao cliente", description = "Vincula um produto específico a um cliente (ex: carrinho de compras ou lista de desejos)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Produto adicionado com sucesso"),

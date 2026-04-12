@@ -28,6 +28,12 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
+    /**
+     * Cria um novo produto no catálogo.
+     * 
+     * @param productRequestDTO Dados do produto para cadastro.
+     * @return ResponseEntity com o produto criado e status 201 (Created).
+     */
     @Operation(summary = "Criar um novo produto", description = "Cria um produto com as informações fornecidas no corpo da requisição")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Produto criado com sucesso"),
@@ -39,6 +45,11 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(newProduct);
     }
 
+    /**
+     * Lista todos os produtos cadastrados no sistema.
+     * 
+     * @return Lista de produtos.
+     */
     @Operation(summary = "Listar todos os produtos", description = "Retorna uma lista de todos os produtos cadastrados no sistema")
     @GetMapping
     public ResponseEntity<List<ProductResponseDTO>> getAllProducts() {
@@ -46,7 +57,13 @@ public class ProductController {
         return ResponseEntity.ok(products);
     }
 
-    @Operation(summary = "Buscar produto por ID", description = "Retorna os detalhes de um produto específico baseado no seu UUID")
+    /**
+     * Busca um produto pelo seu ID único.
+     * 
+     * @param id UUID do produto.
+     * @return O produto encontrado ou 404 (Not Found).
+     */
+    @Operation(summary = "Buscar produto por ID", description = "Retorna os detalhes de um cliente específico baseado no seu UUID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Produto encontrado"),
             @ApiResponse(responseCode = "404", description = "Produto não encontrado")
@@ -58,7 +75,14 @@ public class ProductController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @Operation(summary = "Atualizar um produto", description = "Atualiza os dados de um produto existente baseado no ID")
+    /**
+     * Atualiza os dados de um produto existente.
+     * 
+     * @param id UUID do produto.
+     * @param productRequestDTO Novos dados para atualização.
+     * @return O produto atualizado ou 404.
+     */
+    @Operation(summary = "Atualizar um produto", description = "Atualiza os dados de um cliente existente baseado no ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Produto atualizado com sucesso"),
             @ApiResponse(responseCode = "404", description = "Produto não encontrado para atualização")
@@ -70,7 +94,13 @@ public class ProductController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @Operation(summary = "Deletar um produto", description = "Remove permanentemente um produto do sistema")
+    /**
+     * Remove um produto do sistema.
+     * 
+     * @param id UUID do produto.
+     * @return Status 204 (No Content) em caso de sucesso.
+     */
+    @Operation(summary = "Deletar um produto", description = "Remove permanentemente um cliente do sistema")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Produto removido com sucesso"),
             @ApiResponse(responseCode = "404", description = "Produto não encontrado para exclusão")
