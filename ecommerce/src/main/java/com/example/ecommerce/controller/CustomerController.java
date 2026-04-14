@@ -29,23 +29,6 @@ public class CustomerController {
     private CustomerService customerService;
 
     /**
-     * Cria um novo cliente no sistema.
-     * 
-     * @param customerRequestDTO Dados do cliente para cadastro.
-     * @return ResponseEntity com o cliente criado e status 201 (Created).
-     */
-    @Operation(summary = "Criar um novo cliente", description = "Cadastra um cliente com os dados fornecidos no corpo da requisição")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Cliente criado com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Dados de entrada inválidos (ex: CPF ou Email inválido)")
-    })
-    @PostMapping
-    public ResponseEntity<CustomerResponseDTO> createCustomer(@RequestBody @Valid CustomerRequestDTO customerRequestDTO) {
-        CustomerResponseDTO newCustomer = customerService.createCustomer(customerRequestDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newCustomer);
-    }
-
-    /**
      * Lista todos os clientes cadastrados.
      * 
      * @return Lista de clientes.
