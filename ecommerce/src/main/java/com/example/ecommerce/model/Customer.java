@@ -32,7 +32,7 @@ public class Customer implements UserDetails {
     private String cep;
 
     @Column(unique = true, nullable = false)
-    private BigInteger cpf;
+    private String cpf;
 
     @Column(nullable = false)
     private Date birth;
@@ -59,7 +59,7 @@ public class Customer implements UserDetails {
 
     public Customer() {}
 
-    public Customer(UUID id, String email, String password, String name, String cep, BigInteger cpf, Date birth, BigInteger contactNumber) {
+    public Customer(UUID id, String email, String password, String name, String cep, String cpf, Date birth, BigInteger contactNumber) {
         this.id = id;
         this.email = email;
         this.password = password;
@@ -113,8 +113,8 @@ public class Customer implements UserDetails {
     public void setName(String name) { this.name = name; }
     public String getCep() { return cep; }
     public void setCep(String cep) { this.cep = cep; }
-    public BigInteger getCpf() { return cpf; }
-    public void setCpf(BigInteger cpf) { this.cpf = cpf; }
+    public String getCpf() { return cpf; }
+    public void setCpf(String cpf) { this.cpf = cpf; }
     public Date getBirth() { return birth; }
     public void setBirth(Date birth) { this.birth = birth; }
     public Gender getGender() { return gender; }

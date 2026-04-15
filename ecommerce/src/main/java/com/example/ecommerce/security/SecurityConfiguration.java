@@ -19,14 +19,18 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfiguration {
 
-    @Autowired
-    private SecurityFilter securityFilter;
+    @Bean
+    public SecurityFilter securityFilter() {
+        return new SecurityFilter();
+    }
     
-    @Autowired
-    private RateLimitFilter rateLimitFilter;
+    @Bean
+    public RateLimitFilter rateLimitFilter() {
+        return new RateLimitFilter();
+    }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, SecurityFilter securityFilter, RateLimitFilter rateLimitFilter) throws Exception {
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

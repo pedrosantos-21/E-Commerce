@@ -14,7 +14,7 @@ public record CustomerResponseDTO(
         String email,
         String name,
         String cep,
-        BigInteger cpf,
+        String cpf,
         Date birth,
         Gender gender,
         Sex sex,

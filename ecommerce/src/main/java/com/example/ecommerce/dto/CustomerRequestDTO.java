@@ -40,9 +40,10 @@ public record CustomerRequestDTO(
         @Schema(description = "CEP (apenas números)", example = "74000000")
         String cep,
 
-        @NotNull(message = "O CPF é obrigatório")
+        @NotBlank(message = "O CPF é obrigatório")
+        @Pattern(regexp = "\\d{11}", message = "CPF deve conter exatamente 11 dígitos numéricos")
         @Schema(description = "CPF (apenas números)", example = "12345678901")
-        BigInteger cpf,
+        String cpf,
 
         @NotNull(message = "A data de nascimento é obrigatória")
         @Past(message = "A data de nascimento deve ser no passado")
